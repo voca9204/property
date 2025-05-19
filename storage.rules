@@ -1,0 +1,107 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    // 개발 환경 테스트를 위한 임시 설정 - 모든 사용자에게 접근 허용
+    match /{allPaths=**} {
+      allow read, write: if true;
+    }
+    
+    // 아래 규칙은 프로덕션 환경에서 사용할 규칙입니다.
+    // 개발 중에는 위의 규칙이 우선 적용됩니다.
+    /* 
+    // Default: deny all access
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+    
+    // Property images - allow read by anyone for available properties
+    match /properties/{propertyId}/{imageId} {
+      // Allow read to everyone for public properties
+      allow read: if 
+        // Anyone can read images for available properties
+        isPropertyAvailable(propertyId) ||
+        // Authenticated users who own the property or are agents/admins
+        (request.auth != null && (
+          isPropertyOwner(propertyId) || 
+          hasRole('admin') || 
+          hasRole('agent')
+        ));
+      
+      // Allow write only to authenticated property owners and admins
+      allow write: if request.auth != null && (
+        isPropertyOwner(propertyId) || 
+        hasRole('admin')
+      );
+      
+      // Allow delete only to property owners and admins
+      allow delete: if request.auth != null && (
+        isPropertyOwner(propertyId) || 
+        hasRole('admin')
+      );
+    }
+    
+    // Profile images - allow users to manage their own, admins to manage all
+    match /profiles/{userId}/{allImages=**} {
+      // Allow read to anyone - profile images are public
+      allow read: if true;
+      
+      // Allow write only to the owner and admins
+      allow write: if request.auth != null && (
+        request.auth.uid == userId || 
+        hasRole('admin')
+      );
+      
+      // Allow delete only to the owner and admins
+      allow delete: if request.auth != null && (
+        request.auth.uid == userId || 
+        hasRole('admin')
+      );
+    }
+    
+    // Documents - only authenticated users and with proper permissions
+    match /documents/{category}/{ownerId}/{documentId} {
+      // Allow read to the owner, admins, and authorized agents
+      allow read: if request.auth != null && (
+        request.auth.uid == ownerId || 
+        hasRole('admin') ||
+        (hasRole('agent') && isAgentAuthorized(ownerId))
+      );
+      
+      // Allow write only to the owner and admins
+      allow write: if request.auth != null && (
+        request.auth.uid == ownerId || 
+        hasRole('admin')
+      );
+      
+      // Allow delete only to the owner and admins
+      allow delete: if request.auth != null && (
+        request.auth.uid == ownerId || 
+        hasRole('admin')
+      );
+    }
+    
+    // Helper functions
+    function isPropertyAvailable(propertyId) {
+      return exists(/databases/$(database)/documents/properties/$(propertyId)) &&
+        get(/databases/$(database)/documents/properties/$(propertyId)).data.status == 'available';
+    }
+    
+    function isPropertyOwner(propertyId) {
+      return exists(/databases/$(database)/documents/properties/$(propertyId)) &&
+        get(/databases/$(database)/documents/properties/$(propertyId)).data.ownerId == request.auth.uid;
+    }
+    
+    function hasRole(role) {
+      return request.auth != null &&
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == role;
+    }
+    
+    function isAgentAuthorized(clientId) {
+      return exists(/databases/$(database)/documents/clients/$(clientId)) &&
+        get(/databases/$(database)/documents/clients/$(clientId)).data.agentId == request.auth.uid;
+    }
+    */
+  }
+}

@@ -1,0 +1,63 @@
+# Dependencies
+/node_modules
+/.pnp
+.pnp.js
+
+# Testing
+/coverage
+
+# Production
+/dist
+/build
+
+# Firebase
+/.firebase/
+firebase-debug.log
+firebase-debug.*.log
+ui-debug.log
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Local emulator data
+.emulator-data/
+
+# Added by Claude Task Master
+dev-debug.log
+# Dependency directories
+node_modules/
+# Environment variables
+.vscode
+# OS specific
+# Task files
+# tasks.json
+# tasks/
+
+# Added by Claude Task Master
+tasks.json
+tasks/ 

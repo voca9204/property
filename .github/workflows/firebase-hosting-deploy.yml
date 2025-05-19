@@ -1,0 +1,58 @@
+name: Deploy to Firebase Hosting
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  # Preview deployment for pull requests
+  deploy_preview:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 20
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run build
+      - uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: '${{ secrets.GITHUB_TOKEN }}'
+          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_PROPERTY_A148C }}'
+          projectId: property-a148c
+          channelId: pr-${{ github.event.pull_request.number }}
+        env:
+          FIREBASE_CLI_PREVIEWS: hostingchannels
+
+  # Production deployment for pushes to main
+  deploy_production:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 20
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run build
+      - uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: '${{ secrets.GITHUB_TOKEN }}'
+          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_PROPERTY_A148C }}'
+          channelId: live
+          projectId: property-a148c
+      - name: Deploy Firestore Rules
+        run: npx firebase-tools deploy --only firestore:rules --project property-a148c --token '${{ secrets.FIREBASE_TOKEN }}'
+      - name: Deploy Storage Rules
+        run: npx firebase-tools deploy --only storage --project property-a148c --token '${{ secrets.FIREBASE_TOKEN }}'
+      - name: Deploy Functions
+        run: npx firebase-tools deploy --only functions --project property-a148c --token '${{ secrets.FIREBASE_TOKEN }}'

@@ -1,0 +1,205 @@
+@startuml Property Management ERD
+
+' Use skinparam to customize the diagram
+skinparam linetype ortho
+skinparam class {
+  BackgroundColor WhiteSmoke
+  ArrowColor DarkSlateGray
+  BorderColor DarkSlateGray
+}
+
+' Define entities
+entity "users" as users {
+  * id : string <<PK>>
+  --
+  * email : string
+  * password_hash : string
+  display_name : string
+  photo_url : string
+  phone_number : string
+  * role : enum [admin, agent, viewer]
+  * email_verified : boolean
+  * created_at : timestamp
+  * updated_at : timestamp
+}
+
+entity "properties" as properties {
+  * id : string <<PK>>
+  --
+  * title : string
+  * address : string
+  floor : string
+  * deposit : number
+  * monthly_rent : number
+  maintenance_fee : number
+  * area : number
+  notes : text
+  * status : enum [available, underContract, rented]
+  * owner_id : string <<FK>>
+  * created_at : timestamp
+  * updated_at : timestamp
+  location_latitude : number
+  location_longitude : number
+}
+
+entity "property_images" as property_images {
+  * id : string <<PK>>
+  --
+  * property_id : string <<FK>>
+  * image_url : string
+  * thumbnail_url : string
+  * display_order : number
+  * created_at : timestamp
+}
+
+entity "tags" as tags {
+  * id : string <<PK>>
+  --
+  * name : string
+  * category : string
+  * created_at : timestamp
+}
+
+entity "property_tags" as property_tags {
+  * property_id : string <<PK, FK>>
+  * tag_id : string <<PK, FK>>
+  --
+  created_at : timestamp
+}
+
+entity "clients" as clients {
+  * id : string <<PK>>
+  --
+  * name : string
+  * email : string
+  phone : string
+  * agent_id : string <<FK>>
+  preferences : json
+  notes : text
+  * created_at : timestamp
+  * updated_at : timestamp
+}
+
+entity "showcases" as showcases {
+  * id : string <<PK>>
+  --
+  * title : string
+  * url_id : string
+  description : text
+  * creator_id : string <<FK>>
+  client_id : string <<FK>>
+  branding : json
+  * active : boolean
+  * view_count : number
+  invitation_count : number
+  * created_at : timestamp
+  * updated_at : timestamp
+  last_viewed : timestamp
+}
+
+entity "showcase_properties" as showcase_properties {
+  * showcase_id : string <<PK, FK>>
+  * property_id : string <<PK, FK>>
+  --
+  * display_order : number
+  * created_at : timestamp
+}
+
+entity "client_interactions" as client_interactions {
+  * id : string <<PK>>
+  --
+  * client_id : string <<FK>>
+  * type : enum [showcase_view, property_view, message, appointment]
+  reference_id : string
+  * user_id : string <<FK>>
+  * timestamp : timestamp
+  details : json
+}
+
+entity "appointments" as appointments {
+  * id : string <<PK>>
+  --
+  * client_id : string <<FK>>
+  * property_id : string <<FK>>
+  * agent_id : string <<FK>>
+  * scheduled_at : timestamp
+  * duration_minutes : number
+  * status : enum [scheduled, completed, cancelled, rescheduled]
+  notes : text
+  * created_at : timestamp
+  * updated_at : timestamp
+}
+
+entity "messages" as messages {
+  * id : string <<PK>>
+  --
+  * sender_id : string <<FK>>
+  * recipient_id : string <<FK>>
+  * content : text
+  * read : boolean
+  * created_at : timestamp
+  read_at : timestamp
+}
+
+entity "notifications" as notifications {
+  * id : string <<PK>>
+  --
+  * recipient_id : string <<FK>>
+  sender_id : string <<FK>>
+  * type : enum [message, showcase, appointment, system]
+  * title : string
+  * body : text
+  * read : boolean
+  reference_id : string
+  reference_type : string
+  * created_at : timestamp
+  read_at : timestamp
+}
+
+' Define relationships
+users ||--o{ properties : "owns"
+users ||--o{ clients : "manages"
+users ||--o{ showcases : "creates"
+users ||--o{ appointments : "handles"
+users ||--|{ messages : "sends"
+users ||--|{ messages : "receives"
+users ||--|{ notifications : "receives"
+
+properties ||--o{ property_images : "has"
+properties ||--o{ showcase_properties : "included in"
+properties ||--o{ appointments : "scheduled for"
+properties }|--|| users : "owned by"
+
+property_images }|--|| properties : "belongs to"
+
+tags ||--o{ property_tags : "used in"
+
+property_tags }|--|| properties : "tagged with"
+property_tags }|--|| tags : "applies to"
+
+clients ||--o{ appointments : "schedules"
+clients ||--o{ client_interactions : "performs"
+clients ||--o{ showcases : "views"
+clients }|--|| users : "managed by"
+
+showcases ||--o{ showcase_properties : "contains"
+showcases }|--|| users : "created by"
+showcases }o--o| clients : "shared with"
+
+showcase_properties }|--|| properties : "features"
+showcase_properties }|--|| showcases : "part of"
+
+client_interactions }|--|| clients : "performed by"
+client_interactions }o--o| users : "recorded by"
+
+appointments }|--|| properties : "for viewing"
+appointments }|--|| clients : "scheduled by"
+appointments }|--|| users : "assigned to"
+
+messages }|--|| users : "from"
+messages }|--|| users : "to"
+
+notifications }|--|| users : "for"
+notifications }o--o| users : "from"
+
+@enduml

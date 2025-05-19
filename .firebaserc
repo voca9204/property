@@ -1,0 +1,17 @@
+{
+  "projects": {
+    "default": "property-a148c"
+  },
+  "targets": {
+    "property-a148c": {
+      "hosting": {
+        "production": [
+          "property-a148c"
+        ],
+        "staging": [
+          "property-staging"
+        ]
+      }
+    }
+  }
+}

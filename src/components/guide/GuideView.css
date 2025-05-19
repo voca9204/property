@@ -1,0 +1,346 @@
+.guide-view-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+}
+
+.guide-header {
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #eee;
+}
+
+.guide-header h1 {
+  margin: 0 0 10px 0;
+  color: #333;
+  font-size: 28px;
+}
+
+.guide-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.property-type-badge {
+  background-color: #4a90e2;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.created-date {
+  color: #666;
+  font-size: 14px;
+}
+
+.guide-image-container {
+  margin-bottom: 25px;
+  text-align: center;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.guide-main-image {
+  width: 100%;
+  max-height: 500px;
+  object-fit: cover;
+}
+
+.guide-section {
+  margin-bottom: 30px;
+}
+
+.guide-section h2 {
+  color: #333;
+  margin-bottom: 15px;
+  font-size: 22px;
+  border-bottom: 2px solid #f0f0f0;
+  padding-bottom: 8px;
+}
+
+.guide-description {
+  line-height: 1.6;
+  color: #555;
+  white-space: pre-line;
+}
+
+.guide-address {
+  font-size: 18px;
+  margin-bottom: 15px;
+  color: #333;
+}
+
+.naver-map-link {
+  display: inline-block;
+  margin-bottom: 15px;
+  color: #4a90e2;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.naver-map-link:hover {
+  text-decoration: underline;
+}
+
+.location-section {
+  margin-bottom: 40px;
+}
+
+.location-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.naver-map-link,
+.naver-app-link {
+  display: inline-block;
+  padding: 8px 16px;
+  border-radius: 4px;
+  text-decoration: none;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+
+.naver-map-link {
+  background-color: #03c75a;
+  color: white;
+}
+
+.naver-map-link:hover {
+  background-color: #02a64b;
+}
+
+.naver-app-link {
+  background-color: #f8f9fa;
+  color: #333;
+  border: 1px solid #ddd;
+}
+
+.naver-app-link:hover {
+  background-color: #f1f3f5;
+}
+
+/* Hide app link on non-mobile devices */
+@media (min-width: 769px) {
+  .naver-app-link {
+    display: none;
+  }
+}
+
+.map-container {
+  margin-top: 15px;
+  border-radius: 8px;
+  overflow: hidden;
+  height: 400px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.map-error {
+  height: 100%;
+  background-color: #f8d7da;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  color: #721c24;
+  text-align: center;
+}
+
+.map-link-button {
+  display: inline-block;
+  margin-top: 15px;
+  background-color: #4a90e2;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 4px;
+  text-decoration: none;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+
+.map-link-button:hover {
+  background-color: #3a80d2;
+}
+
+.nearby-facilities,
+.public-transportation {
+  margin-top: 25px;
+}
+
+.nearby-facilities h3,
+.public-transportation h3 {
+  font-size: 18px;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.facilities-list,
+.transport-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.facility-item,
+.transport-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.facility-name,
+.transport-name {
+  flex: 1;
+}
+
+.facility-distance,
+.transport-distance {
+  color: #666;
+  font-size: 14px;
+}
+
+.transport-type {
+  display: inline-block;
+  padding: 3px 6px;
+  border-radius: 3px;
+  font-size: 12px;
+  font-weight: bold;
+  color: white;
+  margin-right: 10px;
+}
+
+.transport-subway {
+  background-color: #3cb44b;
+}
+
+.transport-bus {
+  background-color: #4363d8;
+}
+
+.transport-train {
+  background-color: #e6194b;
+}
+
+.contact-info p {
+  margin: 8px 0;
+  font-size: 16px;
+}
+
+.contact-link {
+  color: #4a90e2;
+  text-decoration: none;
+  margin-left: 5px;
+}
+
+.contact-link:hover {
+  text-decoration: underline;
+}
+
+.additional-info .info-item {
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px dashed #eee;
+}
+
+.guide-footer-info {
+  font-size: 14px;
+  color: #777;
+  margin-bottom: 20px;
+  padding: 10px;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+}
+
+.guide-footer-info p {
+  margin: 5px 0;
+}
+
+.guide-footer {
+  margin-top: 30px;
+  text-align: center;
+  padding-top: 20px;
+  border-top: 1px solid #eee;
+}
+
+.back-link {
+  display: inline-block;
+  background-color: #6c757d;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 4px;
+  text-decoration: none;
+  transition: background-color 0.3s;
+}
+
+.back-link:hover {
+  background-color: #5a6268;
+}
+
+.guide-loading {
+  text-align: center;
+  padding: 40px;
+}
+
+.loading-spinner {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #3498db;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 2s linear infinite;
+  margin: 0 auto 20px auto;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.guide-error, .guide-not-found {
+  text-align: center;
+  padding: 40px;
+  background-color: #f8d7da;
+  border-radius: 8px;
+  margin: 20px auto;
+  max-width: 600px;
+}
+
+.guide-error h2, .guide-not-found h2 {
+  color: #721c24;
+}
+
+.guide-error p, .guide-not-found p {
+  margin-bottom: 20px;
+}
+
+@media (max-width: 768px) {
+  .guide-view-container {
+    padding: 15px;
+  }
+  
+  .guide-header h1 {
+    font-size: 24px;
+  }
+  
+  .guide-meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  
+  .map-container {
+    height: 300px;
+  }
+}

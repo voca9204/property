@@ -1,0 +1,229 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    function isAdmin() {
+      return isSignedIn() && 
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+    
+    function isAgent() {
+      return isSignedIn() && 
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'agent' || 
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin');
+    }
+    
+    function isOwner(resourceId) {
+      return isSignedIn() && resourceId == request.auth.uid;
+    }
+    
+    function isPropertyOwner(propertyId) {
+      return isSignedIn() && 
+        get(/databases/$(database)/documents/properties/$(propertyId)).data.owner_id == request.auth.uid;
+    }
+    
+    function isClientAgent(clientId) {
+      return isSignedIn() && 
+        get(/databases/$(database)/documents/clients/$(clientId)).data.agent_id == request.auth.uid;
+    }
+    
+    function isShowcaseCreator(showcaseId) {
+      return isSignedIn() && 
+        get(/databases/$(database)/documents/showcases/$(showcaseId)).data.creator_id == request.auth.uid;
+    }
+    
+    function hasValidData(data) {
+      return data.keys().hasAll(['createdAt', 'updatedAt']) &&
+             data.createdAt is timestamp &&
+             data.updatedAt is timestamp;
+    }
+    
+    // Users collection
+    match /users/{userId} {
+      allow read: if isSignedIn();
+      // 사용자는 자신의 문서를 만들 수 있어야 함 (로그인 직후)
+      allow create: if isSignedIn() && isOwner(userId);
+      allow update: if (isOwner(userId) || isAdmin());
+      allow delete: if isAdmin();
+    }
+    
+    // Properties collection
+    match /properties/{propertyId} {
+      // Anyone can read available properties, 
+      // but only authenticated users can read properties with other statuses
+      allow read: if resource.data.status == 'available' || isSignedIn();
+      allow create: if isAgent() && hasValidData(request.resource.data) && 
+                     request.resource.data.owner_id == request.auth.uid;
+      allow update: if (isPropertyOwner(propertyId) || isAdmin()) && 
+                     hasValidData(request.resource.data);
+      allow delete: if isPropertyOwner(propertyId) || isAdmin();
+      
+      // Property images subcollection
+      match /images/{imageId} {
+        allow read: if resource.parent.get().data.status == 'available' || isSignedIn();
+        allow create: if isPropertyOwner(propertyId) && hasValidData(request.resource.data);
+        allow update: if isPropertyOwner(propertyId) && hasValidData(request.resource.data);
+        allow delete: if isPropertyOwner(propertyId) || isAdmin();
+      }
+    }
+    
+    // Tags collection
+    match /tags/{tagId} {
+      allow read: if true;
+      allow create: if isAgent() && hasValidData(request.resource.data);
+      allow update, delete: if isAdmin();
+    }
+    
+    // Property Tags collection
+    match /property_tags/{tagRelationId} {
+      allow read: if true;
+      allow create: if isPropertyOwner(request.resource.data.property_id) && 
+                     hasValidData(request.resource.data);
+      allow delete: if isPropertyOwner(resource.data.property_id) || isAdmin();
+    }
+    
+    // Clients collection
+    match /clients/{clientId} {
+      allow read: if isAdmin() || isClientAgent(clientId);
+      allow create: if isAgent() && 
+                     request.resource.data.agent_id == request.auth.uid &&
+                     hasValidData(request.resource.data);
+      allow update: if isClientAgent(clientId) && hasValidData(request.resource.data);
+      allow delete: if isClientAgent(clientId) || isAdmin();
+      
+      // Client interactions subcollection
+      match /interactions/{interactionId} {
+        allow read: if isClientAgent(clientId);
+        allow create: if isClientAgent(clientId) && hasValidData(request.resource.data);
+        allow update, delete: if false; // Interactions should be immutable
+      }
+    }
+    
+    // Showcases collection
+    match /showcases/{showcaseId} {
+      // Public showcases are readable by everyone with a link
+      allow read: if resource.data.active == true || 
+                   isShowcaseCreator(showcaseId) || 
+                   isAdmin();
+                   
+      allow create: if isAgent() && 
+                     request.resource.data.creator_id == request.auth.uid &&
+                     hasValidData(request.resource.data);
+                     
+      allow update: if (isShowcaseCreator(showcaseId) || isAdmin()) && 
+                     hasValidData(request.resource.data);
+                     
+      allow delete: if isShowcaseCreator(showcaseId) || isAdmin();
+      
+      // Showcase properties subcollection
+      match /properties/{propertyId} {
+        allow read: if resource.parent.get().data.active == true || 
+                     isShowcaseCreator(showcaseId) || 
+                     isAdmin();
+                     
+        allow create, update, delete: if isShowcaseCreator(showcaseId) || isAdmin();
+      }
+      
+      // Showcase invitations subcollection
+      match /invitations/{invitationId} {
+        allow read: if isShowcaseCreator(showcaseId) || isAdmin();
+        allow create: if isShowcaseCreator(showcaseId) && hasValidData(request.resource.data);
+        allow update, delete: if false; // Invitations should be immutable
+      }
+      
+      // Showcase views subcollection
+      match /views/{viewId} {
+        allow read: if isShowcaseCreator(showcaseId) || isAdmin();
+        allow create: if true; // Allow anonymous views
+        allow update, delete: if false; // Views should be immutable
+      }
+    }
+    
+    // Appointments collection
+    match /appointments/{appointmentId} {
+      allow read: if isSignedIn() && (
+                   isAdmin() || 
+                   resource.data.agent_id == request.auth.uid || 
+                   isClientAgent(resource.data.client_id) ||
+                   isPropertyOwner(resource.data.property_id)
+                 );
+                 
+      allow create: if isAgent() && 
+                     request.resource.data.agent_id == request.auth.uid &&
+                     hasValidData(request.resource.data);
+                     
+      allow update: if (resource.data.agent_id == request.auth.uid || isAdmin()) && 
+                     hasValidData(request.resource.data);
+                     
+      allow delete: if resource.data.agent_id == request.auth.uid || isAdmin();
+    }
+    
+    // Messages collection
+    match /messages/{messageId} {
+      allow read: if isSignedIn() && (
+                   resource.data.sender_id == request.auth.uid || 
+                   resource.data.recipient_id == request.auth.uid ||
+                   isAdmin()
+                 );
+                 
+      allow create: if isSignedIn() && 
+                     request.resource.data.sender_id == request.auth.uid &&
+                     hasValidData(request.resource.data);
+                     
+      allow update: if isSignedIn() && 
+                     resource.data.recipient_id == request.auth.uid && 
+                     request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read', 'read_at']);
+                     
+      allow delete: if isAdmin();
+    }
+    
+    // Guides collection
+    match /guides/{guideId} {
+      // Allow public read for all guides
+      allow read: if true;
+      
+      // 개발 중에는 모든 사용자가 가이드를 만들고 수정할 수 있도록 설정
+      allow create, update, delete: if true;
+      
+      /* 프로덕션 환경용 규칙 (개발 완료 후 아래 규칙으로 변경)
+      // Only authenticated users can create guides
+      allow create: if isSignedIn();
+                     
+      // Only the creator or admin can update
+      allow update: if isSignedIn() && (
+                     resource.data.createdBy == request.auth.uid || 
+                     isAdmin()
+                   );
+                     
+      // Only the creator or admin can delete
+      allow delete: if isSignedIn() && (
+                     resource.data.createdBy == request.auth.uid || 
+                     isAdmin()
+                   );
+      */
+    }
+    
+    // Notifications collection
+    match /notifications/{notificationId} {
+      allow read: if isSignedIn() && (
+                   resource.data.recipient_id == request.auth.uid ||
+                   isAdmin()
+                 );
+                 
+      allow create: if isSignedIn() && hasValidData(request.resource.data);
+      
+      allow update: if isSignedIn() && 
+                     resource.data.recipient_id == request.auth.uid && 
+                     request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read', 'read_at']);
+                     
+      allow delete: if isAdmin() || resource.data.recipient_id == request.auth.uid;
+    }
+  }
+}
