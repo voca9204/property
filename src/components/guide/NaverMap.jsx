@@ -322,5 +322,3 @@ const NaverMap = ({
 };
 
 export default NaverMap;
-
-export default NaverMap;
