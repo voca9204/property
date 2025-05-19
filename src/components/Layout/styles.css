@@ -20,6 +20,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  position: relative;
 }
 
 .logo {
@@ -27,6 +28,29 @@
   font-weight: bold;
   color: #333;
   text-decoration: none;
+  z-index: 20;
+}
+
+/* 모바일 메뉴 토글 버튼 */
+.mobile-menu-toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 30px;
+  height: 21px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  z-index: 20;
+}
+
+.mobile-menu-toggle span {
+  width: 100%;
+  height: 3px;
+  background-color: #333;
+  border-radius: 3px;
+  transition: all 0.3s ease;
 }
 
 .main-nav {
@@ -112,7 +136,7 @@
 .main-content {
   flex: 1;
   background-color: #f8f9fa;
-  padding: 30px 0;
+  padding: 30px 20px; /* 좌우 패딩 추가 */
 }
 
 .main-footer {
@@ -127,4 +151,93 @@
   padding: 0 20px;
   text-align: center;
   color: #666;
+}
+
+/* 태블릿 미디어 쿼리 */
+@media (max-width: 992px) {
+  .main-nav {
+    margin: 0 15px;
+  }
+
+  .nav-item {
+    margin-right: 10px;
+  }
+
+  .nav-link {
+    padding: 6px 10px;
+    font-size: 14px;
+  }
+
+  .login-btn, .register-btn, .logout-btn {
+    padding: 6px 12px;
+    font-size: 14px;
+  }
+}
+
+/* 모바일 미디어 쿼리 */
+@media (max-width: 768px) {
+  .mobile-menu-toggle {
+    display: flex;
+  }
+
+  .header-content {
+    flex-wrap: wrap;
+  }
+
+  .main-nav {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background-color: white;
+    margin: 0;
+    width: 100%;
+    height: 0;
+    overflow: hidden;
+    transition: height 0.3s ease;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+  }
+
+  /* 모바일 메뉴 열린 상태 */
+  .main-nav.active {
+    height: auto;
+    padding: 15px 0;
+  }
+
+  .nav-list {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .nav-item {
+    margin: 0;
+    width: 100%;
+    text-align: center;
+  }
+
+  .nav-link {
+    display: block;
+    padding: 12px 20px;
+    margin: 5px 0;
+  }
+
+  .auth-buttons {
+    width: 100%;
+    justify-content: center;
+    margin-top: 15px;
+    gap: 15px;
+  }
+
+  /* 메뉴가 열렸을 때 토글 버튼 모양 변경 */
+  .mobile-menu-toggle.active span:nth-child(1) {
+    transform: translateY(9px) rotate(45deg);
+  }
+
+  .mobile-menu-toggle.active span:nth-child(2) {
+    opacity: 0;
+  }
+
+  .mobile-menu-toggle.active span:nth-child(3) {
+    transform: translateY(-9px) rotate(-45deg);
+  }
 }

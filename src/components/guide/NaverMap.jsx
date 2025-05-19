@@ -11,6 +11,8 @@ import naverMapService from '../../services/naverMap.service';
  * @param {string} props.height - Map height (default: 400px)
  * @param {Object} props.mapOptions - Additional map options
  * @param {Object} props.markerOptions - Additional marker options
+ * @param {string} props.className - Additional CSS class names
+ * @param {boolean} props.responsive - Whether to make the map responsive to container size
  */
 const NaverMap = ({ 
   address, 
@@ -18,13 +20,63 @@ const NaverMap = ({
   width = '100%', 
   height = '400px',
   mapOptions = {},
-  markerOptions = {}
+  markerOptions = {},
+  className = '',
+  responsive = true
 }) => {
   const mapRef = useRef(null);
+  const mapInstanceRef = useRef(null); // 네이버 지도 인스턴스 참조
   const [isLoaded, setIsLoaded] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [mapDimensions, setMapDimensions] = useState({ width, height });
+  
+  // 컨테이너 크기 변경 감지를 위한 리사이즈 옵저버 설정
+  useEffect(() => {
+    if (!responsive || !mapRef.current) return;
+    
+    const updateMapSize = () => {
+      if (mapRef.current) {
+        const containerWidth = mapRef.current.clientWidth;
+        
+        // 모바일 화면에서는 높이 조정
+        let containerHeight = parseInt(height);
+        if (window.innerWidth <= 768) {
+          containerHeight = 300; // 모바일 화면에서 더 작은 높이
+        } else if (window.innerWidth <= 1024) {
+          containerHeight = 350; // 태블릿 화면에서 중간 높이
+        }
+        
+        setMapDimensions({
+          width: `${containerWidth}px`,
+          height: `${containerHeight}px`
+        });
+        
+        // 지도 인스턴스가 있는 경우 리사이즈 호출
+        if (mapInstanceRef.current && window.naver && window.naver.maps) {
+          window.naver.maps.Event.trigger(mapInstanceRef.current, 'resize');
+        }
+      }
+    };
+    
+    // ResizeObserver 설정
+    const resizeObserver = new ResizeObserver(updateMapSize);
+    resizeObserver.observe(mapRef.current);
+    
+    // 초기 크기 설정
+    updateMapSize();
+    
+    // 윈도우 리사이즈 이벤트에도 반응
+    window.addEventListener('resize', updateMapSize);
+    
+    return () => {
+      if (mapRef.current) {
+        resizeObserver.unobserve(mapRef.current);
+      }
+      window.removeEventListener('resize', updateMapSize);
+    };
+  }, [responsive, height]);
   
   // Initialize map once component mounts and address is available
   useEffect(() => {
@@ -60,6 +112,24 @@ const NaverMap = ({
         if (result.success) {
           setIsLoaded(true);
           setIsLoading(false);
+          
+          // 지도 인스턴스 저장
+          if (result.map) {
+            mapInstanceRef.current = result.map;
+            
+            // 모바일에서 한 손가락 드래그 활성화
+            if (window.matchMedia('(max-width: 768px)').matches) {
+              result.map.setOptions({
+                draggable: true,
+                pinchZoom: true,
+                scrollWheel: false,
+                keyboardShortcuts: false,
+                disableDoubleTapZoom: false,
+                disableDoubleClickZoom: false,
+                disableTwoFingerTapZoom: false
+              });
+            }
+          }
         } else {
           throw new Error(result.error || '지도를 초기화하는 데 실패했습니다.');
         }
@@ -138,50 +208,119 @@ const NaverMap = ({
   
   return (
     <div 
-      ref={mapRef} 
+      className={`naver-map-container ${className}`}
       style={{ 
-        width, 
-        height, 
+        width: '100%',
+        overflow: 'hidden',
         borderRadius: '8px',
-        overflow: 'hidden'
       }}
     >
-      {isLoading && !isError && (
-        <div style={{ 
-          display: 'flex', 
-          alignItems: 'center', 
-          justifyContent: 'center',
-          height: '100%',
-          backgroundColor: '#f5f5f5',
-          border: '1px solid #ddd',
-          borderRadius: '8px'
-        }}>
-          <div style={{
-            textAlign: 'center'
-          }}>
+      <div
+        ref={mapRef} 
+        className="naver-map"
+        style={{ 
+          width: responsive ? mapDimensions.width : width, 
+          height: responsive ? mapDimensions.height : height, 
+          borderRadius: '8px',
+          overflow: 'hidden'
+        }}
+      >
+        {isLoading && !isError && (
+          <div 
+            className="map-loading"
+            style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center',
+              height: '100%',
+              backgroundColor: '#f5f5f5',
+              border: '1px solid #ddd',
+              borderRadius: '8px'
+            }}
+          >
             <div style={{
-              border: '4px solid #f3f3f3',
-              borderTop: '4px solid #4a90e2',
-              borderRadius: '50%',
-              width: '30px',
-              height: '30px',
-              animation: 'mapSpin 2s linear infinite',
-              margin: '0 auto 10px auto'
-            }}></div>
-            <style>
-              {`
-                @keyframes mapSpin {
-                  0% { transform: rotate(0deg); }
-                  100% { transform: rotate(360deg); }
-                }
-              `}
-            </style>
-            <p>지도를 로딩 중입니다...</p>
+              textAlign: 'center'
+            }}>
+              <div style={{
+                border: '4px solid #f3f3f3',
+                borderTop: '4px solid #4a90e2',
+                borderRadius: '50%',
+                width: '30px',
+                height: '30px',
+                animation: 'mapSpin 2s linear infinite',
+                margin: '0 auto 10px auto'
+              }}></div>
+              <style>
+                {`
+                  @keyframes mapSpin {
+                    0% { transform: rotate(0deg); }
+                    100% { transform: rotate(360deg); }
+                  }
+                  @media (max-width: 768px) {
+                    .map-loading p {
+                      font-size: 14px;
+                    }
+                  }
+                `}
+              </style>
+              <p>지도를 로딩 중입니다...</p>
+            </div>
           </div>
+        )}
+      </div>
+      
+      {/* 모바일용 컨트롤 */}
+      {isLoaded && !isError && (
+        <div className="map-mobile-controls" style={{
+          display: window.innerWidth <= 768 ? 'flex' : 'none',
+          justifyContent: 'center',
+          gap: '10px',
+          padding: '10px 0',
+        }}>
+          <button 
+            onClick={() => {
+              if (mapInstanceRef.current) {
+                const currentZoom = mapInstanceRef.current.getZoom();
+                mapInstanceRef.current.setZoom(currentZoom + 1);
+              }
+            }}
+            style={{
+              border: 'none',
+              background: 'white',
+              boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
+              borderRadius: '50%',
+              width: '36px',
+              height: '36px',
+              fontSize: '18px',
+              fontWeight: 'bold',
+              cursor: 'pointer'
+            }}
+          >+</button>
+          <button 
+            onClick={() => {
+              if (mapInstanceRef.current) {
+                const currentZoom = mapInstanceRef.current.getZoom();
+                mapInstanceRef.current.setZoom(currentZoom - 1);
+              }
+            }}
+            style={{
+              border: 'none',
+              background: 'white',
+              boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
+              borderRadius: '50%',
+              width: '36px',
+              height: '36px',
+              fontSize: '18px',
+              fontWeight: 'bold',
+              cursor: 'pointer'
+            }}
+          >-</button>
         </div>
       )}
     </div>
   );
 };
+
+export default NaverMap;
 
 export default NaverMap;

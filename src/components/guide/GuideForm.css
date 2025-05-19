@@ -265,8 +265,64 @@
   width: auto;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 768px) {
+  .guide-form-container {
+    padding: 15px;
+    margin: 0 10px;
+  }
+  
+  .guide-form-container h2 {
+    font-size: 20px;
+  }
+  
+  .form-group {
+    margin-bottom: 15px;
+  }
+  
+  .guide-form-container label {
+    font-size: 14px;
+  }
+  
+  .guide-form-container input[type="text"],
+  .guide-form-container input[type="email"],
+  .guide-form-container input[type="tel"],
+  .guide-form-container textarea,
+  .guide-form-container select {
+    padding: 8px;
+    font-size: 15px;
+  }
+  
+  .guide-form-container button {
+    padding: 10px 15px;
+    font-size: 15px;
+  }
+  
   .additional-info-grid {
     grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  
+  .image-preview img {
+    max-height: 200px;
+  }
+  
+  .form-actions {
+    flex-direction: column;
+  }
+  
+  .form-actions button {
+    width: 100%;
+  }
+}
+
+/* 태블릿 스타일 */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .guide-form-container {
+    max-width: 90%;
+  }
+  
+  .additional-info-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
   }
 }

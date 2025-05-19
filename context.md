@@ -25,6 +25,16 @@ const firebaseConfig = {
 - Firebase Authentication implemented
 - Firebase 구성 파일 업데이트: `/src/firebase/config.js` 파일에 Firebase 설정 추가 및 서비스 내보내기 설정
 - OpenAI API 키 보안 개선: hardcoded API 키를 환경 변수(VITE_OPENAI_API_KEY)로 대체
+- 반응형 UI 구현 (Task #11):
+  - 레이아웃 컴포넌트 모바일 메뉴 토글 기능 추가
+  - 모바일 및 태블릿 화면 지원을 위한 미디어 쿼리 추가
+  - 헤더, 푸터, 컨텐츠 영역 반응형 디자인 적용
+  - GuideList 컴포넌트 모바일 최적화
+  - GuideForm 컴포넌트 모바일 최적화
+  - NaverMap 컴포넌트 모바일 최적화 (크기 조정 및 컨트롤 추가)
+  - 모바일 터치 이벤트 최적화
+  - 전역 스타일에 반응형 폰트 크기 및 미디어 쿼리 적용
+  - iOS 최적화 (확대 방지 등)
 - Implemented Firestore database layer:
   - Created generic FirestoreService base class for CRUD operations
   - Implemented specialized services for properties, users, clients, and showcases

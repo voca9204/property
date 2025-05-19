@@ -15,6 +15,9 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  
+  /* 반응형 폰트 사이즈 */
+  font-size: 16px;
 }
 
 @media (prefers-color-scheme: light) {
@@ -24,13 +27,90 @@
   }
 }
 
+/* 모바일 화면에서 기본 폰트 사이즈 조정 */
+@media (max-width: 768px) {
+  :root {
+    font-size: 14px;
+  }
+}
+
+/* 폰트 사이즈 확대 방지 (iOS) */
+@media screen and (max-width: 768px) {
+  input, select, textarea {
+    font-size: 16px;
+  }
+}
+
+/* 텍스트 선택 스타일 */
+::selection {
+  background-color: #4a90e2;
+  color: white;
+}
+
+/* 모든 요소에 부드러운 트랜지션 효과 적용 */
+* {
+  box-sizing: border-box;
+  transition: all 0.2s ease-out;
+}
+
 body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
+  overflow-x: hidden; /* 가로 스크롤 방지 */
 }
 
 #root {
   width: 100%;
   height: 100vh;
+}
+
+/* 로딩 상태 스타일 */
+.loading-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+}
+
+/* 버튼 기본 스타일 */
+button {
+  cursor: pointer;
+  border: none;
+  font-family: inherit;
+}
+
+/* 링크 스타일 */
+a {
+  color: #4a90e2;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* 접근성 포커스 스타일 */
+:focus {
+  outline: 2px solid #4a90e2;
+  outline-offset: 2px;
+}
+
+/* 스크롤바 스타일 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a1a1a1;
 }
