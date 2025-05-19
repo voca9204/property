@@ -33,7 +33,7 @@
 
 /* 모바일 메뉴 토글 버튼 */
 .mobile-menu-toggle {
-  display: none;
+  display: flex;  /* Changed from 'none' to 'flex' for testing */
   flex-direction: column;
   justify-content: space-between;
   width: 30px;

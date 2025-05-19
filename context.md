@@ -35,6 +35,13 @@ const firebaseConfig = {
   - 모바일 터치 이벤트 최적화
   - 전역 스타일에 반응형 폰트 크기 및 미디어 쿼리 적용
   - iOS 최적화 (확대 방지 등)
+- NaverMap 컴포넌트의 중복 export default 문제 해결
+- Firebase Hosting 배포 설정 및 구현 (Task #14):
+  - Vite 빌드 구성 확인 및 최적화된 프로덕션 빌드 생성
+  - Firebase 호스팅 배포 완료 (https://property-a148c.web.app 에서 접근 가능)
+  - 최적화된 캐싱 헤더 및 CORS 설정 적용
+  - SPA를 위한 히스토리 API 리다이렉트 설정
+  - Service Worker 캐싱 설정 최적화
 - Implemented Firestore database layer:
   - Created generic FirestoreService base class for CRUD operations
   - Implemented specialized services for properties, users, clients, and showcases
